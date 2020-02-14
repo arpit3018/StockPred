@@ -6,9 +6,11 @@ import pandas_datareader.data as web
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 import math
+import csv
 from sklearn import preprocessing
 from sklearn.linear_model import LinearRegression, Lasso, BayesianRidge, Ridge
 from sklearn.preprocessing import PolynomialFeatures
+from .models import *
 
 # Create your views here.
 def index(request):
@@ -114,3 +116,24 @@ def index(request):
     }
     return render(request,'index.html',context_dict)
 
+def csv_read_data(request):
+    with open("./companylist.csv") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+            else:
+                company = Company(comp_name=row["Name"], industry=row["Sector"], symbol=row["Symbol"])
+                company.save()
+
+    with open("./ind_nifty500list.csv") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+            else:
+                compName = row["Name"] + ".NS"
+                company = Company(comp_name=compName, industry=row["Industry"], symbol=row["Symbol"])
+                company.save()
