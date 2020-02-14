@@ -15,7 +15,7 @@ def index(request):
     main_company = 'TATAMOTORS.NS'
     # Compare with similar company
     # Define the date range
-    start = datetime.datetime(2016, 10, 4)
+    start = datetime.datetime(2010, 10, 4)
     end = datetime.datetime(2020, 2, 14)
 
     df = web.DataReader(main_company, 'yahoo', start, end)
