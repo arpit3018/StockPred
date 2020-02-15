@@ -6,17 +6,59 @@ import pandas_datareader.data as web
 import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 import math
+import csv
 from sklearn import preprocessing
 from sklearn.linear_model import LinearRegression, Lasso, BayesianRidge, Ridge
 from sklearn.preprocessing import PolynomialFeatures
+from .models import *
+from newsapi import NewsApiClient
+from django.http import HttpResponse
 
 # Create your views here.
 def index(request):
-    main_company = 'TATAMOTORS.NS'
-    # Compare with similar company
-    # Define the date range
-    start = datetime.datetime(2010, 10, 4)
-    end = datetime.datetime(2020, 2, 14)
+    res = Company.objects.all()
+    return render(request,'home.html',{"res":res})
+
+def csv_read_data(request):
+    with open("./companylist.csv") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+            else:
+                company = Company(comp_name=row["Name"], industry=row["Sector"], symbol=row["Symbol"])
+                company.save()
+
+    with open("./ind_nifty500list.csv") as csv_file:
+        csv_reader = csv.DictReader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                line_count += 1
+            else:
+                sym = row["Symbol"] + ".NS"
+                company = Company(comp_name=row["Name"], industry=row["Industry"], symbol=sym)
+                company.save()
+    return HttpResponse("Hello")
+
+def get_result(request):
+    if request.method == "POST":
+        comp = request.POST.get("company")
+        context_dict = predict_stock(comp)
+        context_dict['name'] = comp
+        flag = 0
+        if "NS" in comp:
+            flag = 1
+        context_dict['comp_obj'] = Company.objects.filter(symbol=comp)[0]
+        context_dict['flag'] = flag
+        return render(request,'index.html',context_dict)
+    return redirect("index")
+
+def predict_stock(names):
+    main_company = names
+    start = datetime.datetime(2016, 10, 4)
+    end = datetime.datetime(2020, 2, 15)
 
     df = web.DataReader(main_company, 'yahoo', start, end)
 
@@ -24,9 +66,7 @@ def index(request):
     low_value = df['Low'][len(df['Low'])-1]
     open_value = df['Open'][len(df['Open'])-1]
     close_value = df['Close'][len(df['Close'])-1]
-    # print(df.tail())
 
-    # Calculating the rolling mean for observation
     close_px = df['Adj Close']
     mavg = close_px.rolling(window=100).mean()
 
@@ -35,57 +75,29 @@ def index(request):
     dfreg['HL_PCT'] = (df['High'] - df['Low']) / df['Close'] * 100.0
     dfreg['PCT_change'] = (df['Close'] - df['Open']) / df['Open'] * 100.0
 
-    # Drop missing value
     dfreg.fillna(value=-99999, inplace=True)
-    # We want to separate 1 percent of the data to forecast
     forecast_out = int(math.ceil(0.01 * len(dfreg)))
-    # Separating the label here, we want to predict the AdjClose
     forecast_col = 'Adj Close'
     dfreg['label'] = dfreg[forecast_col].shift(-forecast_out)
     X = np.array(dfreg.drop(['label'], 1))
-    # Scale the X so that everyone can have the same distribution for linear regression
     X = preprocessing.scale(X)
-    # Finally We want to find Data Series of late X and early X (train) for model generation and evaluation
     X_lately = X[-forecast_out:]
     X = X[:-forecast_out]
-    # Separate label and identify it as y
     y = np.array(dfreg['label'])
     y = y[:-forecast_out]
     y_lately = y[-forecast_out:]
 
-
-
     X_train = X
     y_train = y
 
-    # # 1. Linear regression 
-    # clfreg = LinearRegression(n_jobs=-1)
-    # clfreg.fit(X_train, y_train)
-
-    # 2. Lasso - Linear Model
     clflasso = Lasso(alpha=0.1)
     clflasso.fit(X_train, y_train)
-
-    # # 3. Bayesian Ridge - Linear Model
-    # clfbr = BayesianRidge()
-    # clfbr.fit(X_train, y_train)
-
-    # # 4 Ridge - Linear Model
-    # clfridge = Ridge(alpha=1.0)
-    # clfridge.fit(X_train, y_train)
 
     X_test = X_lately
     y_test = y_lately
 
-    # confidence_reg = clfreg.score(X_test, y_test)
     confidence_lasso = clflasso.score(X_test,y_test)
-    # confidence_br = clfbr.score(X_test,y_test)
-    # confidence_ridge = clfridge.score(X_test, y_test)
-
-    # dfreg_lr = dfreg.copy()
     dfreg_lasso = dfreg.copy()
-    # dfreg_ridge = dfreg.copy()
-    # dfreg_br = dfreg.copy()
 
     noOfDaysData = 100
 
@@ -105,12 +117,25 @@ def index(request):
     plt.legend(loc=4)
     plt.xlabel('Date')
     plt.ylabel('Price')
-    plt.savefig('media/TCS.png')
+    plt.savefig('media/'+main_company+'.png')
+    plt.clf()
     context_dict = {
+    "res" : Company.objects.all(),
     "high_value" : round(high_value,2),
     "low_value" : round(low_value,2),
     "open_value" : round(open_value,2),
     "close_value" : round(close_value,2)
     }
-    return render(request,'index.html',context_dict)
+    return context_dict
 
+
+newsapi = NewsApiClient(api_key='a8e9c0ed7cc5444196beae086ae7abac')
+def news(query):
+    headlines = []
+    top_headlines = newsapi.get_everything(q="Apple", language='en', page=4)
+    articles = top_headlines["articles"]
+
+    for article in articles:
+        headlines.append(article["title"])
+        return headlines
+    return []

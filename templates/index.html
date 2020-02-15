@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-  <title>AdminLTE 3 | Dashboard 2</title>
+  <title>Stock Predictor</title>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="../static/plugins/fontawesome-free/css/all.min.css">
@@ -26,7 +26,7 @@
         <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
       </li> -->
       <li class="nav-item d-none d-sm-inline-block">
-        <a href="" class="nav-link">Home</a>
+        <a href="" class="nav-link">Dashboard</a>
       </li>
     
     </ul>
@@ -37,16 +37,7 @@
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
       <!-- Messages Dropdown Menu -->
-      <form class="form-inline ml-3">
-        <div class="input-group input-group-sm">
-          <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-          <div class="input-group-append">
-            <button class="btn btn-navbar" type="submit">
-              <i class="fas fa-search"></i>
-            </button>
-          </div>
-        </div>
-      </form>
+      
     </ul>
   </nav>
   <!-- /.navbar -->
@@ -61,20 +52,11 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark">Dashboard v2</h1>
-            <form class="form-inline ml-3">
-                <div class="input-group input-group-sm">
-                  <input class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search">
-                  <div class="input-group-append">
-                    <button class="btn btn-navbar" type="submit">
-                      <i class="fas fa-search"></i>
-                    </button>
-                  </div>
-                </div>
-              </form>
+            <h1 class="m-0 text-dark">{{comp_obj.comp_name}}</h1>
+            
           </div><!-- /.col -->
           <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
+            <ol class="breadcrumb float-sm-right">  
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -87,29 +69,24 @@
       <div class="container-fluid">
         <!-- Info boxes -->
         <div class="row">
-          <div class="col-12 col-sm-6 col-md-3">
-            <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">CPU Traffic</span>
-              </div>
-              <!-- /.info-box-content -->
-            </div>
-            <!-- /.info-box -->
-          </div>
+          
           <!-- /.col -->
-          <div class="col-12 col-sm-6 col-md-3">
-            <div class="info-box mb-3">
-              <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
-
-              <div class="info-box-content">
-                <span class="info-box-text">Likes</span>
+          <form class="form-inline ml-3" method="POST" action="{% url 'get_result' %}">
+              {%csrf_token%}
+            <div class="input-group input-group-sm">
+                <select name="company" style="font-size: 18px !important;height: calc(3.8125rem + -8px)!important;" class="form-control form-control-navbar">
+                    {% for i in res %} 
+                    <option value={{i.symbol}}>{{i.comp_name}}</option>
+                    {%endfor%}
+                  </select>
+              <!-- <input style="border: 1.2px solid black;font-size: 31px !important;height: calc(3.8125rem + -8px)!important;" class="form-control form-control-navbar" type="search" placeholder="Search" aria-label="Search"> -->
+              <div class="input-group-append">
+                <button class="btn btn-navbar" type="submit" style="font-size: 25px;">
+                    <i class="fas fa-search-dollar"></i>
+                </button>
               </div>
-              <!-- /.info-box-content -->
             </div>
-            <!-- /.info-box -->
-          </div>
+          </form>
           <!-- /.col -->
 
           <!-- fix for small devices only -->
@@ -117,11 +94,11 @@
 
           <div class="col-12 col-sm-6 col-md-3">
             <div class="info-box mb-3">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-dollar-sign"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">Sales</span>
-                <span class="info-box-number">760</span>
+                <span class="info-box-text">{{comp_obj.symbol}}</span>
+                
               </div>
               <!-- /.info-box-content -->
             </div>
@@ -130,11 +107,10 @@
           <!-- /.col -->
           <div class="col-12 col-sm-6 col-md-3">
             <div class="info-box mb-3">
-              <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+              <span class="info-box-icon bg-warning elevation-1"><i class="fa fa-industry"></i></span>
 
               <div class="info-box-content">
-                <span class="info-box-text">New Members</span>
-                <span class="info-box-number">2,000</span>
+                <span class="info-box-text">{{comp_obj.industry}}</span>
               </div>
               <!-- /.info-box-content -->
             </div>
@@ -148,27 +124,16 @@
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h5 class="card-title">Monthly Recap Report</h5>
+                <h5 class="card-title">Stock Report</h5>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i class="fas fa-minus"></i>
                   </button>
                   <div class="btn-group">
-                    <button type="button" class="btn btn-tool dropdown-toggle" data-toggle="dropdown">
-                      <i class="fas fa-wrench"></i>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-right" role="menu">
-                      <a href="#" class="dropdown-item">Action</a>
-                      <a href="#" class="dropdown-item">Another action</a>
-                      <a href="#" class="dropdown-item">Something else here</a>
-                      <a class="dropdown-divider"></a>
-                      <a href="#" class="dropdown-item">Separated link</a>
-                    </div>
+                   
+                  
                   </div>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
-                  </button>
                 </div>
               </div>
               <!-- /.card-header -->
@@ -176,12 +141,12 @@
                 <div class="row">
                   <div class="col-md-8">
                     <p class="text-center">
-                      <strong>4 Oct, 2010 - 14 Feb, 2020</strong>
+                      <strong>4 Oct, 2016 - 15 Feb, 2020</strong>
                     </p>
 
                     <div class="chart" style="text-align: center;">
                       <!-- Sales Chart Canvas -->
-                      <img src="../media/TCS.png" style="height: 379px;width: 563px;">
+                      <img src="../media/{{comp_obj.symbol}}.png" style="height: 379px;width: 563px;">
                     </div>
                     <!-- /.chart-responsive -->
                   </div>
@@ -192,7 +157,9 @@
           
                         <div class="info-box-content">
                           <span class="info-box-text">HIGH</span>
-                          <span class="info-box-number">${{high_value}}</span>
+                          <span class="info-box-number">
+                            {% if flag == 1 %} INR {%else%} $ {%endif%}  
+                            {{high_value}}</span>
                         </div>
                         <!-- /.info-box-content -->
                       </div>
@@ -202,7 +169,9 @@
           
                         <div class="info-box-content">
                           <span class="info-box-text">LOW</span>
-                          <span class="info-box-number">${{low_value}}</span>
+                          <span class="info-box-number">
+                            {% if flag == 1 %} INR {%else%} $ {%endif%}  
+                            {{low_value}}</span>
                         </div>
                         <!-- /.info-box-content -->
                       </div>
@@ -212,7 +181,9 @@
           
                         <div class="info-box-content">
                           <span class="info-box-text">OPEN</span>
-                          <span class="info-box-number">${{open_value}}</span>
+                          <span class="info-box-number">
+                            {% if flag == 1 %} INR {%else%} $ {%endif%} 
+                            {{open_value}}</span>
                         </div>
                         <!-- /.info-box-content -->
                       </div>
@@ -222,7 +193,9 @@
           
                         <div class="info-box-content">
                           <span class="info-box-text">CLOSE</span>
-                          <span class="info-box-number">${{close_value}}</span>
+                          <span class="info-box-number">
+                            {% if flag == 1 %} INR {%else%} $ {%endif%}  
+                            {{close_value}}</span>
                         </div>
                         <!-- /.info-box-content -->
                     </div>
@@ -245,7 +218,7 @@
         <!-- Main row -->
         <div class="row">
           <!-- Left col -->
-          <div class="col-md-8">
+          <div class="col-md-12">
             <!-- MAP & BOX PANE -->
             <div class="card">
               
@@ -276,14 +249,11 @@
             <!-- TABLE: LATEST ORDERS -->
             <div class="card">
               <div class="card-header border-transparent">
-                <h3 class="card-title">Latest Orders</h3>
+                <h3 class="card-title">Top Listed Companies</h3>
 
                 <div class="card-tools">
                   <button type="button" class="btn btn-tool" data-card-widget="collapse">
                     <i class="fas fa-minus"></i>
-                  </button>
-                  <button type="button" class="btn btn-tool" data-card-widget="remove">
-                    <i class="fas fa-times"></i>
                   </button>
                 </div>
               </div>
@@ -293,67 +263,65 @@
                   <table class="table m-0">
                     <thead>
                     <tr>
-                      <th>Order ID</th>
-                      <th>Item</th>
+                      <th>Comapany Name</th>
                       <th>Status</th>
-                      <th>Popularity</th>
+                      <th>Market Capitalization</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR9842</a></td>
-                      <td>Call of Duty IV</td>
-                      <td><span class="badge badge-success">Shipped</span></td>
+                      <td>Apple, Inc.</td>
                       <td>
-                        <div class="sparkbar" data-color="#00a65a" data-height="20">90,80,90,-70,61,-83,63</div>
+                          <span class="badge badge-success">Increase</span>
+                      </td>
+                      <td>
+                        <div class="sparkbar" data-color="#00a65a" data-height="20">$960.8 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR1848</a></td>
-                      <td>Samsung Smart TV</td>
-                      <td><span class="badge badge-warning">Pending</span></td>
+                      <td>Berkshire Hathaway</td>
+                      
+                      <td><span class="badge badge-success">Increase</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#f39c12" data-height="20">90,80,-90,70,61,-83,68</div>
+                        <div class="sparkbar" data-color="#f39c12" data-height="20">$506.2 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR7429</a></td>
-                      <td>iPhone 6 Plus</td>
-                      <td><span class="badge badge-danger">Delivered</span></td>
+                      <td>JPMorgan Chase</td>
+                      <td><span class="badge badge-danger">Decrease</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#f56954" data-height="20">90,-80,90,70,-61,83,63</div>
+                        <div class="sparkbar" data-color="#f56954" data-height="20">	
+                            $377.5 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR7429</a></td>
-                      <td>Samsung Smart TV</td>
-                      <td><span class="badge badge-info">Processing</span></td>
+                      <td>Johnson & Johnson </td>
+                      <td><span class="badge badge-warning">Negligible</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#00c0ef" data-height="20">90,80,-90,70,-61,83,63</div>
+                        <div class="sparkbar" data-color="#00c0ef" data-height="20">$342.1 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR1848</a></td>
-                      <td>Samsung Smart TV</td>
-                      <td><span class="badge badge-warning">Pending</span></td>
+                      <td>Walmart</td>
+                      <td><span class="badge badge-success">Increase</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#f39c12" data-height="20">90,80,-90,70,61,-83,68</div>
+                        <div class="sparkbar" data-color="#f39c12" data-height="20">	
+                            $320.0 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR7429</a></td>
-                      <td>iPhone 6 Plus</td>
-                      <td><span class="badge badge-danger">Delivered</span></td>
+                      <td>ExxonMobil</td>
+                      <td><span class="badge badge-danger">Decrease</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#f56954" data-height="20">90,-80,90,70,-61,83,63</div>
+                        <div class="sparkbar" data-color="#f56954" data-height="20">$318.9 billion</div>
                       </td>
                     </tr>
                     <tr>
-                      <td><a href="pages/examples/invoice.html">OR9842</a></td>
-                      <td>Call of Duty IV</td>
-                      <td><span class="badge badge-success">Shipped</span></td>
+                      <td>Bank of America</td>
+                      <td><span class="badge badge-danger">Decrease</span></td>
                       <td>
-                        <div class="sparkbar" data-color="#00a65a" data-height="20">90,80,90,-70,61,-83,63</div>
+                        <div class="sparkbar" data-color="#00a65a" data-height="20">	
+                            $287.6 billion</div>
                       </td>
                     </tr>
                     </tbody>
@@ -362,10 +330,7 @@
                 <!-- /.table-responsive -->
               </div>
               <!-- /.card-body -->
-              <div class="card-footer clearfix">
-                <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Place New Order</a>
-                <a href="javascript:void(0)" class="btn btn-sm btn-secondary float-right">View All Orders</a>
-              </div>
+             
               <!-- /.card-footer -->
             </div>
             <!-- /.card -->
@@ -389,11 +354,9 @@
 
   <!-- Main Footer -->
   <footer class="main-footer">
-    <strong>Copyright &copy; 2014-2019 <a href="http://adminlte.io">AdminLTE.io</a>.</strong>
+    <strong>Copyright &copy; kuch_bhi.</strong>
     All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-      <b>Version</b> 3.0.3-pre
-    </div>
+    
   </footer>
 </div>
 <!-- ./wrapper -->
