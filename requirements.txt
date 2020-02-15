@@ -1,0 +1,10 @@
+django
+pandas
+numpy
+datetime
+pandas_datareader
+matplotlib
+math
+csv
+sklearn
+newsapi-python
